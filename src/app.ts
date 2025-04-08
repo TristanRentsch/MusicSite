@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes";
 import reviewRoutes from "./routes/reviewRoutes";
 import albumRoutes from "./routes/albumRoutes";
+import path from "path";
 
 
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/albums", albumRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI as string;

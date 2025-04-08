@@ -5,7 +5,7 @@ const albumSchema = new mongoose.Schema({
   artist: { type: String, required: true },
   year: Number,
   genre: String,
-  imageUrl: { type: String },
+  albumArt: { type: String, required: true },
 });
 
 export default mongoose.model("Album", albumSchema);
