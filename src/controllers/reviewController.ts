@@ -30,7 +30,7 @@ export const createReview = async (req: Request, res: Response): Promise<void> =
 export const updateReview = async (req: Request, res: Response): Promise<void> => {
   try {
     const { reviewId } = req.params;
-    const userId = (req as any).userId;
+    const currentUser = (req as any).user;
     const { rating, text } = req.body;
 
     const review = await Review.findById(reviewId);
@@ -39,9 +39,10 @@ export const updateReview = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    if (review.user.toString() !== userId) {
-      res.status(403).json({ message: "Not authorized" });
-      return 
+    // Check permission: must be author or admin
+    if (review.user.toString() !== currentUser._id.toString() && currentUser.role !== "admin") {
+      res.status(403).json({ message: "You do not have permission to edit this review" });
+      return;
     }
 
     review.rating = rating ?? review.rating;
@@ -50,6 +51,7 @@ export const updateReview = async (req: Request, res: Response): Promise<void> =
     await review.save();
     res.status(200).json(review);
   } catch (err) {
+    console.error("Update review error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -57,7 +59,7 @@ export const updateReview = async (req: Request, res: Response): Promise<void> =
 export const deleteReview = async (req: Request, res: Response): Promise<void> => {
   try {
     const { reviewId } = req.params;
-    const userId = (req as any).userId;
+    const currentUser = (req as any).user;
 
     const review = await Review.findById(reviewId);
     if (!review) {
@@ -65,8 +67,9 @@ export const deleteReview = async (req: Request, res: Response): Promise<void> =
       return;
     } 
 
-    if (review.user.toString() !== userId) {
-      res.status(403).json({ message: "Not authorized" });
+    // Check permission
+    if (review.user.toString() !== currentUser._id.toString() && currentUser.role !== "admin") {
+      res.status(403).json({ message: "You do not have permission to delete this review" });
       return;
     }
 
